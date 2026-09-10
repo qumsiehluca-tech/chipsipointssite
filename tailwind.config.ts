@@ -18,8 +18,8 @@ const config: Config = {
         parchmentDim: "#B9AFC4" // secondary/muted text
       },
       fontFamily: {
-        display: ["var(--font-fraunces)", "Georgia", "serif"],
-        body: ["var(--font-inter)", "system-ui", "sans-serif"]
+        display: ["var(--font-garamond)", "Georgia", "serif"],
+        body: ["var(--font-dmsans)", "system-ui", "sans-serif"]
       }
     }
   },

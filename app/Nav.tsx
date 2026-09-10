@@ -22,21 +22,20 @@ export default function Nav() {
   }
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex items-center gap-5 text-sm">
       {role === "admin" && (
-        <Link href="/admin" className="text-sm text-purpleLight hover:text-goldBright transition-colors">
+        <Link href="/admin" className="text-purpleLight hover:text-goldBright transition-colors">
           Log points
         </Link>
       )}
       {role && (
         <button
           onClick={handleLogout}
-          className="text-sm text-parchmentDim hover:text-goldBright transition-colors"
+          className="text-parchmentDim hover:text-goldBright transition-colors"
         >
           Log out
         </button>
       )}
-      <p className="font-display italic text-gold text-sm">Founded 1841</p>
     </div>
   );
 }

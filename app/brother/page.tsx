@@ -42,16 +42,19 @@ function BrotherPageInner() {
         &larr; Back to the roll
       </Link>
 
-      <div className="mt-6 mb-10 flex items-baseline justify-between">
-        <h2 className="font-display text-3xl text-parchment">{brother.name}</h2>
-        <p className="font-display text-2xl text-gold tabular-nums">
-          {brother.total % 1 === 0 ? brother.total : brother.total.toFixed(1)}
-          <span className="text-sm text-parchmentDim ml-1 font-body">pts</span>
-        </p>
+      <div className="mt-8 mb-10">
+        <p className="eyebrow text-gold/70 mb-2">Brother</p>
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 className="font-display text-4xl text-parchment">{brother.name}</h2>
+          <p className="font-display text-2xl text-gold tabular-nums shrink-0">
+            {brother.total % 1 === 0 ? brother.total : brother.total.toFixed(1)}
+            <span className="text-sm text-parchmentDim ml-1 font-body">pts</span>
+          </p>
+        </div>
       </div>
 
-      <h3 className="font-display italic text-lg text-parchmentDim mb-4">History</h3>
-      <div className="rule" />
+      <p className="eyebrow text-parchmentDim mb-3">History</p>
+      <div className="rule-double" />
       {brother.history.map((entry, i) => (
         <div key={i} className="py-4 border-b border-gold/10">
           <div className="flex items-baseline justify-between gap-4">

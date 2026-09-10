@@ -24,8 +24,9 @@ export default function AdminPage() {
 
   return (
     <div>
-      <h2 className="font-display text-3xl text-parchment mb-2">Log Points</h2>
-      <p className="text-parchmentDim text-sm max-w-md mb-10">
+      <p className="eyebrow text-gold/70 mb-2">Admin</p>
+      <h2 className="font-display text-4xl text-parchment mb-3">Log Points</h2>
+      <p className="text-parchmentDim text-sm max-w-md mb-10 leading-relaxed">
         Select one or more brothers, pick an action, and submit — this writes directly to the
         Log sheet and every total updates immediately.
       </p>

@@ -7,16 +7,28 @@ html {
 }
 
 body {
-  background-color: #160C24;
-  background-image:
-    radial-gradient(circle at 15% 0%, rgba(75, 46, 131, 0.35), transparent 45%),
-    radial-gradient(circle at 100% 30%, rgba(198, 166, 100, 0.08), transparent 40%);
+  background-color: #160c24;
+  background-image: radial-gradient(circle at 50% 0%, rgba(75, 46, 131, 0.22), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   background-attachment: fixed;
-  color: #F4EFE3;
+  color: #f4efe3;
 }
 
+/* single hairline */
 .rule {
   border-top: 1px solid rgba(198, 166, 100, 0.28);
+}
+
+/* heraldic double rule — thin gold line with a fainter shadow line beneath */
+.rule-double {
+  border-top: 1px solid rgba(198, 166, 100, 0.4);
+  box-shadow: 0 3px 0 -2px rgba(198, 166, 100, 0.15);
+}
+
+.eyebrow {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 .tabular-nums {
@@ -26,7 +38,7 @@ body {
 /* visible keyboard focus, per accessibility floor */
 a:focus-visible,
 button:focus-visible {
-  outline: 2px solid #C6A664;
+  outline: 2px solid #c6a664;
   outline-offset: 3px;
   border-radius: 2px;
 }

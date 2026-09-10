@@ -53,16 +53,19 @@ export default function AdminLogForm({
     }
   }
 
+  const fieldClass =
+    "w-full bg-transparent border-b border-gold/25 rounded-none px-1 py-3 text-parchment placeholder:text-parchmentDim/50 focus:outline-none focus:border-gold transition-colors";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-10">
       <div>
-        <p className="text-sm text-parchmentDim mb-3">Brothers ({selected.length} selected)</p>
-        <div className="rule mb-2" />
-        <div className="max-h-64 overflow-y-auto space-y-1 pr-2">
+        <p className="eyebrow text-parchmentDim mb-3">Brothers ({selected.length} selected)</p>
+        <div className="rule-double mb-1" />
+        <div className="max-h-64 overflow-y-auto pr-2">
           {brothers.map((name) => (
             <label
               key={name}
-              className="flex items-center gap-3 py-1.5 cursor-pointer text-sm text-parchment hover:text-goldBright"
+              className="flex items-center gap-3 py-2 border-b border-gold/10 cursor-pointer text-sm text-parchment hover:text-goldBright transition-colors"
             >
               <input
                 type="checkbox"
@@ -73,19 +76,19 @@ export default function AdminLogForm({
               {name}
             </label>
           ))}
-          {brothers.length === 0 && <p className="text-parchmentDim text-sm">No brothers yet.</p>}
+          {brothers.length === 0 && <p className="text-parchmentDim text-sm py-2">No brothers yet.</p>}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm text-parchmentDim mb-2">Action</label>
+        <label className="eyebrow block text-parchmentDim mb-3">Action</label>
         <select
           value={action}
           onChange={(e) => handleActionChange(e.target.value)}
-          className="w-full bg-lodge border border-gold/30 rounded px-4 py-3 text-parchment focus:outline-none focus:border-gold"
+          className={fieldClass}
         >
           {pointValues.map((pv) => (
-            <option key={pv.action} value={pv.action}>
+            <option key={pv.action} value={pv.action} className="bg-lodge">
               {pv.action} ({pv.points >= 0 ? "+" : ""}
               {pv.points})
             </option>
@@ -94,44 +97,33 @@ export default function AdminLogForm({
       </div>
 
       <div>
-        <label className="block text-sm text-parchmentDim mb-2">Points</label>
-        <input
-          type="number"
-          step="0.5"
-          value={points}
-          onChange={(e) => setPoints(Number(e.target.value))}
-          className="w-full bg-lodge border border-gold/30 rounded px-4 py-3 text-parchment focus:outline-none focus:border-gold"
-        />
-        <p className="text-xs text-parchmentDim mt-1">
+        <label className="eyebrow block text-parchmentDim mb-3">Points</label>
+        <input type="number" step="0.5" value={points} onChange={(e) => setPoints(Number(e.target.value))} className={fieldClass} />
+        <p className="text-xs text-parchmentDim/70 mt-2">
           Override for variable actions (summer help, discretionary &quot;Other&quot;).
         </p>
       </div>
 
       <div>
-        <label className="block text-sm text-parchmentDim mb-2">Notes</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={2}
-          className="w-full bg-lodge border border-gold/30 rounded px-4 py-3 text-parchment focus:outline-none focus:border-gold"
-        />
+        <label className="eyebrow block text-parchmentDim mb-3">Notes</label>
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={fieldClass} />
       </div>
 
       <div>
-        <label className="block text-sm text-parchmentDim mb-2">Logged by</label>
+        <label className="eyebrow block text-parchmentDim mb-3">Logged by</label>
         <input
           type="text"
           value={loggedBy}
           onChange={(e) => setLoggedBy(e.target.value)}
           placeholder="Your name"
-          className="w-full bg-lodge border border-gold/30 rounded px-4 py-3 text-parchment focus:outline-none focus:border-gold"
+          className={fieldClass}
         />
       </div>
 
       <button
         type="submit"
         disabled={submitting || selected.length === 0 || !action}
-        className="bg-purple hover:bg-purpleLight transition-colors text-parchment font-display px-8 py-3 rounded disabled:opacity-50"
+        className="border border-gold/60 text-gold hover:bg-gold hover:text-ink transition-colors font-body text-xs tracking-[0.2em] uppercase px-8 py-3 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gold"
       >
         {submitting ? "Logging…" : `Log for ${selected.length || 0} brother${selected.length === 1 ? "" : "s"}`}
       </button>
