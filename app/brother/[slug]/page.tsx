@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getBrothers, getBrotherBySlug } from "@/lib/data";
-
-export async function generateStaticParams() {
-  const brothers = await getBrothers();
-  return brothers.map((b) => ({ slug: b.slug }));
-}
+import { getBrotherBySlug } from "@/lib/data";
 
 export default async function BrotherPage({
   params

@@ -12,3 +12,11 @@ export type Brother = {
   total: number;
   history: LogEntry[];
 };
+
+export type Role = "admin" | "viewer";
+
+export type PointValue = {
+  type: string; // "Gain" | "Loss"
+  action: string;
+  points: number;
+};

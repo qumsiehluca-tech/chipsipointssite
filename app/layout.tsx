@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { getSessionRole } from "@/lib/data";
+import LogoutButton from "./LogoutButton";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -27,6 +29,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const role = getSessionRole();
+
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
       <body className="font-body antialiased min-h-screen">
@@ -38,7 +42,18 @@ export default function RootLayout({
                 Chi Psi Points
               </h1>
             </a>
-            <p className="font-display italic text-gold text-sm">Founded 1841</p>
+            <div className="flex items-center gap-6">
+              {role === "admin" && (
+                <a
+                  href="/admin"
+                  className="text-sm text-purpleLight hover:text-goldBright transition-colors"
+                >
+                  Log points
+                </a>
+              )}
+              {role && <LogoutButton />}
+              <p className="font-display italic text-gold text-sm">Founded 1841</p>
+            </div>
           </div>
         </header>
         <main className="mx-auto max-w-3xl px-6 py-10">{children}</main>
