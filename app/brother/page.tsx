@@ -1,14 +1,40 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getBrotherBySlug } from "@/lib/data";
+"use client";
 
-export default async function BrotherPage({
-  params
-}: {
-  params: { slug: string };
-}) {
-  const brother = await getBrotherBySlug(params.slug);
-  if (!brother) notFound();
+import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { getStoredAuth } from "@/lib/auth";
+import { fetchAuthed } from "@/lib/data";
+import type { Brother } from "@/lib/types";
+
+function BrotherPageInner() {
+  const searchParams = useSearchParams();
+  const slug = searchParams.get("slug");
+  const [brother, setBrother] = useState<Brother | null | undefined>(undefined);
+
+  useEffect(() => {
+    const auth = getStoredAuth();
+    if (!auth || !slug) return;
+    fetchAuthed(auth.password).then((data) => {
+      if (!data) return;
+      setBrother(data.brothers.find((b) => b.slug === slug) ?? null);
+    });
+  }, [slug]);
+
+  if (brother === undefined) {
+    return <p className="text-parchmentDim text-sm py-6">Loading&hellip;</p>;
+  }
+
+  if (brother === null) {
+    return (
+      <div>
+        <Link href="/" className="text-sm text-purpleLight hover:text-goldBright transition-colors">
+          &larr; Back to the roll
+        </Link>
+        <p className="text-parchmentDim text-sm py-6">Brother not found.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -41,7 +67,7 @@ export default async function BrotherPage({
           </div>
           <div className="flex items-baseline justify-between gap-4 mt-1">
             <p className="text-parchmentDim text-xs">
-              {entry.notes ? entry.notes : "\u00A0"}
+              {entry.notes ? entry.notes : " "}
             </p>
             <p className="text-parchmentDim text-xs shrink-0">
               {new Date(entry.date + "T00:00:00").toLocaleDateString("en-US", {
@@ -49,7 +75,7 @@ export default async function BrotherPage({
                 day: "numeric",
                 year: "numeric"
               })}
-              {entry.loggedBy ? ` \u00B7 logged by ${entry.loggedBy}` : ""}
+              {entry.loggedBy ? ` · logged by ${entry.loggedBy}` : ""}
             </p>
           </div>
         </div>
@@ -59,5 +85,13 @@ export default async function BrotherPage({
         <p className="text-parchmentDim text-sm py-6">No entries logged yet.</p>
       )}
     </div>
+  );
+}
+
+export default function BrotherPage() {
+  return (
+    <Suspense fallback={<p className="text-parchmentDim text-sm py-6">Loading&hellip;</p>}>
+      <BrotherPageInner />
+    </Suspense>
   );
 }

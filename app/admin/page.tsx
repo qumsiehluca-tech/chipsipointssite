@@ -1,8 +1,26 @@
-import { getBrothers, getPointValues } from "@/lib/data";
+"use client";
+
+import { useEffect, useState } from "react";
+import { getStoredAuth } from "@/lib/auth";
+import { fetchAuthed } from "@/lib/data";
+import type { Brother, PointValue } from "@/lib/types";
 import AdminLogForm from "./AdminLogForm";
 
-export default async function AdminPage() {
-  const [brothers, pointValues] = await Promise.all([getBrothers(), getPointValues()]);
+export default function AdminPage() {
+  const [password, setPassword] = useState<string | null>(null);
+  const [brothers, setBrothers] = useState<Brother[]>([]);
+  const [pointValues, setPointValues] = useState<PointValue[]>([]);
+
+  useEffect(() => {
+    const auth = getStoredAuth();
+    if (!auth) return;
+    setPassword(auth.password);
+    fetchAuthed(auth.password).then((data) => {
+      if (!data) return;
+      setBrothers(data.brothers);
+      if (data.pointValues) setPointValues(data.pointValues);
+    });
+  }, []);
 
   return (
     <div>
@@ -11,7 +29,14 @@ export default async function AdminPage() {
         Select one or more brothers, pick an action, and submit — this writes directly to the
         Log sheet and every total updates immediately.
       </p>
-      <AdminLogForm brothers={brothers.map((b) => b.name)} pointValues={pointValues} />
+      {password && (
+        <AdminLogForm
+          password={password}
+          brothers={brothers.map((b) => b.name)}
+          pointValues={pointValues}
+          onLogged={setBrothers}
+        />
+      )}
     </div>
   );
 }

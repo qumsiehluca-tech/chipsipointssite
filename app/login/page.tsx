@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { fetchAuthed } from "@/lib/data";
+import { setStoredAuth } from "@/lib/auth";
 
 export default function LoginPage() {
   const [password, setPassword] = useState("");
@@ -14,16 +16,11 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password })
-    });
-
+    const data = await fetchAuthed(password);
     setLoading(false);
-    if (res.ok) {
+    if (data) {
+      setStoredAuth({ password, role: data.role });
       router.push("/");
-      router.refresh();
     } else {
       setError("Incorrect password.");
     }

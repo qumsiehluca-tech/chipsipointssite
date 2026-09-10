@@ -1,15 +1,19 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import type { PointValue } from "@/lib/types";
+import { postLogEntries } from "@/lib/data";
+import type { Brother, PointValue } from "@/lib/types";
 
 export default function AdminLogForm({
+  password,
   brothers,
-  pointValues
+  pointValues,
+  onLogged
 }: {
+  password: string;
   brothers: string[];
   pointValues: PointValue[];
+  onLogged: (brothers: Brother[]) => void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [action, setAction] = useState(pointValues[0]?.action ?? "");
@@ -18,7 +22,6 @@ export default function AdminLogForm({
   const [loggedBy, setLoggedBy] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const router = useRouter();
 
   function toggleBrother(name: string) {
     setSelected((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]));
@@ -37,21 +40,16 @@ export default function AdminLogForm({
     setStatus(null);
 
     const entries = selected.map((name) => ({ name, action, points, notes, loggedBy }));
-    const res = await fetch("/api/log", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ entries })
-    });
+    const updated = await postLogEntries(password, entries);
 
     setSubmitting(false);
-    if (res.ok) {
+    if (updated) {
       setStatus(`Logged for ${selected.length} brother${selected.length > 1 ? "s" : ""}.`);
+      onLogged(updated);
       setSelected([]);
       setNotes("");
-      router.refresh();
     } else {
-      const data = await res.json().catch(() => ({}));
-      setStatus(data.error ? `Error: ${data.error}` : "Something went wrong.");
+      setStatus("Something went wrong — couldn't reach the points backend.");
     }
   }
 
