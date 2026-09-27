@@ -1,4 +1,5 @@
 export type LogEntry = {
+  row?: number; // sheet row number — present once fetched from the backend, used to edit/delete this exact entry
   date: string; // ISO date, e.g. "2026-08-25"
   action: string;
   points: number;

@@ -17,13 +17,15 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const data = await fetchAuthed(password);
+    const result = await fetchAuthed(password);
     setLoading(false);
-    if (data) {
-      setStoredAuth({ password, role: data.role });
+    if (result.ok) {
+      setStoredAuth({ password, role: result.data.role });
       router.push("/");
-    } else {
+    } else if (result.reason === "unauthorized") {
       setError("Incorrect password.");
+    } else {
+      setError("Couldn't reach the points backend. Check your connection and try again.");
     }
   }
 

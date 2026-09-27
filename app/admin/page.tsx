@@ -1,26 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getStoredAuth } from "@/lib/auth";
-import { fetchAuthed } from "@/lib/data";
-import type { Brother, PointValue } from "@/lib/types";
+import { useBrothersData } from "@/lib/useBrothersData";
+import ErrorState from "../ErrorState";
 import AdminLogForm from "./AdminLogForm";
+import AddBrotherForm from "./AddBrotherForm";
 
 export default function AdminPage() {
-  const [password, setPassword] = useState<string | null>(null);
-  const [brothers, setBrothers] = useState<Brother[]>([]);
-  const [pointValues, setPointValues] = useState<PointValue[]>([]);
-
-  useEffect(() => {
-    const auth = getStoredAuth();
-    if (!auth) return;
-    setPassword(auth.password);
-    fetchAuthed(auth.password).then((data) => {
-      if (!data) return;
-      setBrothers(data.brothers);
-      if (data.pointValues) setPointValues(data.pointValues);
-    });
-  }, []);
+  const { status, brothers, pointValues, password, error, retry } = useBrothersData();
 
   return (
     <div>
@@ -30,13 +16,20 @@ export default function AdminPage() {
         Select one or more brothers, pick an action, and submit — this writes directly to the
         Log sheet and every total updates immediately.
       </p>
-      {password && (
-        <AdminLogForm
-          password={password}
-          brothers={brothers.map((b) => b.name)}
-          pointValues={pointValues}
-          onLogged={setBrothers}
-        />
+
+      {status === "loading" && <p className="text-parchmentDim text-sm py-6">Loading&hellip;</p>}
+      {status === "error" && <ErrorState message={error!} onRetry={retry} />}
+
+      {status === "ready" && password && (
+        <>
+          <AddBrotherForm password={password} onAdded={retry} />
+          <AdminLogForm
+            password={password}
+            brothers={brothers.map((b) => b.name)}
+            pointValues={pointValues}
+            onLogged={retry}
+          />
+        </>
       )}
     </div>
   );

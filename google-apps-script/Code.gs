@@ -44,12 +44,23 @@ function doPost(e) {
       return jsonResponse_({ error: "unauthorized" }, 401);
     }
 
-    var entries = body.entries || [];
-    if (!entries.length) {
-      return jsonResponse_({ error: "no entries" }, 400);
+    var action = body.action || "log";
+    if (action === "log") {
+      var entries = body.entries || [];
+      if (!entries.length) {
+        return jsonResponse_({ error: "no entries" }, 400);
+      }
+      appendLogEntries_(entries);
+    } else if (action === "update") {
+      updateLogEntry_(body.row, body.entry || {});
+    } else if (action === "delete") {
+      deleteLogEntry_(body.row);
+    } else if (action === "addBrother") {
+      addBrother_(body.name);
+    } else {
+      return jsonResponse_({ error: "unknown action" }, 400);
     }
 
-    appendLogEntries_(entries);
     return jsonResponse_({ ok: true, brothers: getBrothers_() }, 200);
   } catch (err) {
     return jsonResponse_({ error: String(err) }, 500);
@@ -85,6 +96,7 @@ function getLogRows_() {
     var name = row[1];
     if (!name) continue; // skip blank rows
     rows.push({
+      row: LOG_FIRST_DATA_ROW + i, // actual sheet row — lets the admin UI edit/delete this exact entry
       date: formatDate_(row[0]),
       name: String(name).trim(),
       action: row[2],
@@ -182,6 +194,66 @@ function appendLogEntries_(entries) {
     ];
   });
   sheet.getRange(startRow, 1, rows.length, 6).setValues(rows);
+}
+
+function updateLogEntry_(row, entry) {
+  if (!row) throw new Error("missing row");
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LOG_SHEET);
+  sheet
+    .getRange(row, 1, 1, 6)
+    .setValues([
+      [
+        entry.date || todayIso_(),
+        entry.name,
+        entry.action,
+        Number(entry.points) || 0,
+        entry.notes || "",
+        entry.loggedBy || ""
+      ]
+    ]);
+}
+
+function deleteLogEntry_(row) {
+  if (!row) throw new Error("missing row");
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LOG_SHEET);
+  sheet.deleteRow(row);
+}
+
+/**
+ * Adds a brand-new brother: writes their name into the first open row on
+ * the Leaderboard sheet (the Rank/Total/link formulas are already prefilled
+ * down to row 104, so only the name cell needs filling), then duplicates
+ * the hidden Template tab for their own history view inside the sheet.
+ */
+function addBrother_(name) {
+  name = String(name || "").trim();
+  if (!name) throw new Error("missing name");
+
+  var existing = getRosterNames_();
+  if (existing.indexOf(name) !== -1) {
+    throw new Error("that brother is already on the roster");
+  }
+
+  var lb = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LEADERBOARD_SHEET);
+  var names = lb.getRange(5, 2, 100, 1).getValues(); // B5:B104
+  var targetRow = -1;
+  for (var i = 0; i < names.length; i++) {
+    if (!String(names[i][0] || "").trim()) {
+      targetRow = 5 + i;
+      break;
+    }
+  }
+  if (targetRow === -1) throw new Error("the Leaderboard sheet is full");
+  lb.getRange(targetRow, 2).setValue(name);
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var template = ss.getSheetByName("Template");
+  if (template) {
+    var newSheet = template.copyTo(ss);
+    newSheet.showSheet();
+    newSheet.setName(name.substring(0, 90));
+    newSheet.getRange("B1").setValue(name);
+  }
 }
 
 function slugify_(name) {

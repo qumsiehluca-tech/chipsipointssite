@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { postLogEntries } from "@/lib/data";
-import type { Brother, PointValue } from "@/lib/types";
+import type { PointValue } from "@/lib/types";
 
 export default function AdminLogForm({
   password,
@@ -13,7 +13,7 @@ export default function AdminLogForm({
   password: string;
   brothers: string[];
   pointValues: PointValue[];
-  onLogged: (brothers: Brother[]) => void;
+  onLogged: () => void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [action, setAction] = useState(pointValues[0]?.action ?? "");
@@ -40,16 +40,16 @@ export default function AdminLogForm({
     setStatus(null);
 
     const entries = selected.map((name) => ({ name, action, points, notes, loggedBy }));
-    const updated = await postLogEntries(password, entries);
+    const result = await postLogEntries(password, entries);
 
     setSubmitting(false);
-    if (updated) {
+    if (result.ok) {
       setStatus(`Logged for ${selected.length} brother${selected.length > 1 ? "s" : ""}.`);
-      onLogged(updated);
+      onLogged();
       setSelected([]);
       setNotes("");
     } else {
-      setStatus("Something went wrong — couldn't reach the points backend.");
+      setStatus(result.error);
     }
   }
 
