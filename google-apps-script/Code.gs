@@ -97,6 +97,7 @@ function getLogRows_() {
 }
 
 function getBrothers_() {
+  var names = getRosterNames_();
   var rows = getLogRows_();
   var byName = {};
   rows.forEach(function (row) {
@@ -104,8 +105,16 @@ function getBrothers_() {
     byName[row.name].push(row);
   });
 
-  var brothers = Object.keys(byName).map(function (name) {
-    var history = byName[name].sort(function (a, b) {
+  // Roster names come from the Leaderboard sheet, not just from who already
+  // has a Log entry — otherwise a brother with zero points (no history yet)
+  // would never appear on the site at all.
+  var allNames = names.slice();
+  Object.keys(byName).forEach(function (name) {
+    if (allNames.indexOf(name) === -1) allNames.push(name);
+  });
+
+  var brothers = allNames.map(function (name) {
+    var history = (byName[name] || []).sort(function (a, b) {
       return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
     });
     var total = history.reduce(function (sum, h) {
@@ -123,6 +132,22 @@ function getBrothers_() {
     return b.total - a.total;
   });
   return brothers;
+}
+
+function getRosterNames_() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(
+    LEADERBOARD_SHEET
+  );
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 5) return [];
+  var values = sheet.getRange(5, 2, lastRow - 4, 1).getValues(); // column B = Brother Name
+  return values
+    .map(function (row) {
+      return String(row[0] || "").trim();
+    })
+    .filter(function (name) {
+      return name;
+    });
 }
 
 function getPointValues_() {
