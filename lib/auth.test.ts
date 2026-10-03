@@ -11,12 +11,12 @@ describe("auth storage", () => {
   });
 
   it("round-trips a stored password and role", () => {
-    setStoredAuth({ password: "!!!ForsakenThrong", role: "admin" });
-    expect(getStoredAuth()).toEqual({ password: "!!!ForsakenThrong", role: "admin" });
+    setStoredAuth({ password: "test-admin-pw", role: "admin" });
+    expect(getStoredAuth()).toEqual({ password: "test-admin-pw", role: "admin" });
   });
 
   it("clears stored auth", () => {
-    setStoredAuth({ password: "PhilipSpencer", role: "viewer" });
+    setStoredAuth({ password: "test-viewer-pw", role: "viewer" });
     clearStoredAuth();
     expect(getStoredAuth()).toBeNull();
   });
