@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-xs mx-auto mt-12 text-center">
-      <Seal className="w-14 h-14 text-gold/70 mx-auto mb-6" />
+      <Seal className="w-24 h-24 mx-auto mb-6 object-contain" />
       <p className="eyebrow text-gold/70 mb-2">Alpha Nu Tau</p>
       <h2 className="font-display text-2xl text-parchment mb-8">Chi Psi Points</h2>
       <form onSubmit={handleSubmit} className="space-y-6">

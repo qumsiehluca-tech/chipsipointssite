@@ -1,3 +1,4 @@
+import { readCache, writeCache } from "./cache";
 import type { Brother, PointValue, Role } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -56,6 +57,12 @@ export function mergeRosterWithLog(roster: string[], logNames: string[]): string
 const MOCK_POINT_VALUES: PointValue[] = [
   { type: "Gain", action: "Bringing a PNM who accepts a bid to Lodge", points: 5 },
   { type: "Gain", action: "Holding a non-exec position", points: 2.5 },
+  {
+    type: "Gain",
+    action:
+      "Helping at Lodge over the summer (moving things, cleaning, putting stuff together, etc.) — range, use discretion",
+    points: 2
+  },
   { type: "Loss", action: "Missing weekly Alpha meeting without excuse", points: -3 }
 ];
 
@@ -113,8 +120,14 @@ function mockBrothers(): Brother[] {
   return brothers.sort((a, b) => b.total - a.total);
 }
 
-/** Checks a password against the backend (or dev fallback) and returns the full payload, or a reason it failed. */
+/** Checks a password against the backend (or dev fallback), caches a good payload for instant repaints, and returns it. */
 export async function fetchAuthed(password: string): Promise<FetchResult> {
+  const result = await fetchFresh(password);
+  if (result.ok) writeCache(result.data);
+  return result;
+}
+
+async function fetchFresh(password: string): Promise<FetchResult> {
   if (!SHEETS_API_URL) {
     if (password === "admin") return { ok: true, data: { role: "admin", brothers: mockBrothers(), pointValues: MOCK_POINT_VALUES } };
     if (password === "viewer") return { ok: true, data: { role: "viewer", brothers: mockBrothers() } };
@@ -141,7 +154,18 @@ export type NewLogEntry = {
   date?: string;
 };
 
+// A successful write returns the fresh roster; store it so the refetch that
+// follows renders the change instantly instead of showing stale rows.
 async function postAction(password: string, body: Record<string, unknown>): Promise<WriteResult> {
+  const result = await postActionRaw(password, body);
+  if (result.ok) {
+    const cached = readCache();
+    if (cached) writeCache({ ...cached, brothers: result.brothers });
+  }
+  return result;
+}
+
+async function postActionRaw(password: string, body: Record<string, unknown>): Promise<WriteResult> {
   if (!SHEETS_API_URL) {
     return mockPostAction(password, body);
   }

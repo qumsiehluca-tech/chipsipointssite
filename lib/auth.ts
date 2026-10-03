@@ -1,3 +1,4 @@
+import { clearCache } from "./cache";
 import type { Role } from "./types";
 
 const STORAGE_KEY = "cp_auth";
@@ -25,4 +26,5 @@ export function setStoredAuth(auth: StoredAuth) {
 
 export function clearStoredAuth() {
   localStorage.removeItem(STORAGE_KEY);
+  clearCache();
 }

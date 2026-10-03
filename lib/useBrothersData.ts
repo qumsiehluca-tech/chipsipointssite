@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { clearStoredAuth, getStoredAuth } from "./auth";
+import { readCache } from "./cache";
 import { fetchAuthed } from "./data";
 import type { Brother, PointValue, Role } from "./types";
 
@@ -28,6 +29,10 @@ const INITIAL_STATE: State = {
  * Loads the roster once auth is present, and gives every page the same
  * loading / error / retry behavior instead of hanging on "Loading…"
  * forever if the backend is unreachable or the stored password goes stale.
+ *
+ * Stale-while-revalidate: the last good payload is painted immediately from
+ * localStorage while a fresh copy is fetched in the background, so only the
+ * very first visit waits on the (slow) Apps Script backend.
  */
 export function useBrothersData() {
   const router = useRouter();
@@ -40,7 +45,21 @@ export function useBrothersData() {
       return;
     }
 
-    setState((s) => ({ ...s, status: "loading", error: null }));
+    const cached = readCache();
+    setState((s) => {
+      if (cached && cached.role === auth.role) {
+        return {
+          status: "ready",
+          brothers: cached.brothers,
+          pointValues: cached.pointValues || [],
+          role: cached.role,
+          password: auth.password,
+          error: null
+        };
+      }
+      if (s.status === "ready") return { ...s, error: null };
+      return { ...s, status: "loading", error: null };
+    });
 
     fetchAuthed(auth.password).then((result) => {
       if (result.ok) {
@@ -56,11 +75,12 @@ export function useBrothersData() {
         clearStoredAuth();
         router.replace("/login");
       } else {
-        setState((s) => ({
-          ...s,
-          status: "error",
-          error: "Couldn't reach the points backend. Check your connection and try again."
-        }));
+        // Keep showing cached data if we have it; only surface an error when there's nothing to show.
+        setState((s) =>
+          s.status === "ready"
+            ? s
+            : { ...s, status: "error", error: "Couldn't reach the points backend. Check your connection and try again." }
+        );
       }
     });
   }, [router]);

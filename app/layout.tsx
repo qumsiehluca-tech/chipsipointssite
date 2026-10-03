@@ -33,11 +33,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${garamond.variable} ${dmSans.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://script.google.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://script.googleusercontent.com" crossOrigin="anonymous" />
+      </head>
       <body className="font-body antialiased min-h-screen">
         <header className="border-b border-gold/25">
           <div className="mx-auto max-w-2xl px-6 py-7 flex items-center justify-between">
             <Link href="/" className="group flex items-center gap-3">
-              <Seal className="w-9 h-9 text-gold/80 group-hover:text-goldBright transition-colors shrink-0" />
+              <Seal className="w-12 h-12 shrink-0 object-contain" />
               <span>
                 <span className="block text-[0.65rem] tracking-[0.2em] uppercase text-parchmentDim">
                   Alpha Nu Tau

@@ -37,7 +37,10 @@ an entry, and adding a brother before the real sheet is wired up.
   inline **Edit** / **Delete** controls on each history entry here.
 - `app/admin/` — admin-only panel: **Add a brother** (writes a new Leaderboard
   row and duplicates the Template tab for them) and the bulk point-logging
-  form (multi-select brothers, action, points, notes)
+  form (brother selection, action, points, notes). **All** brothers are
+  selected by default; admins can save any selection as a named **group**
+  (stored in that browser's `localStorage` via `lib/groups.ts`, not in the
+  sheet) and re-select it with one click.
 - `app/login/page.tsx`, `app/AuthGate.tsx`, `lib/auth.ts` — the site-wide
   password gate. `AuthGate` wraps every page and redirects to `/login` unless
   a valid session is in `localStorage`; `/admin` additionally requires the
@@ -49,6 +52,11 @@ an entry, and adding a brother before the real sheet is wired up.
   that needs the roster. If the backend is unreachable, or a stored password
   goes stale (e.g. you rotate the Script Properties), pages show a **Retry**
   button or bounce back to `/login` instead of hanging on "Loading…" forever.
+  It is stale-while-revalidate: the last good payload (`lib/cache.ts`, kept in
+  `localStorage`, wiped on logout) paints instantly while a fresh copy loads in
+  the background, so only a first-ever visit waits on Apps Script.
+- `public/chi-psi-seal.png` — the Chi Psi seal, taken from chipsi.org's brand
+  assets; used by `app/Seal.tsx` in the header and on the login page.
 - `tailwind.config.ts` — the color tokens (purple/gold) and fonts, in one place
 - `google-apps-script/Code.gs` — the backend that attaches to the Google
   Sheet itself (see below)

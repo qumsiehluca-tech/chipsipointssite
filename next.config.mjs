@@ -1,10 +1,13 @@
+const basePath = "/chipsipointssite";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
-  basePath: "/chipsipointssite",
-  assetPrefix: "/chipsipointssite/",
+  basePath,
+  assetPrefix: `${basePath}/`,
   trailingSlash: true,
-  images: { unoptimized: true }
+  images: { unoptimized: true },
+  env: { NEXT_PUBLIC_BASE_PATH: basePath }
 };
 
 export default nextConfig;
